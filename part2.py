@@ -52,7 +52,7 @@ class KnightsTour: #this class is for the las vegas algorithm with k moves
         print(f"Number of successful tours: {successful_tours}")
         print(f"Number of trials: {total_trials}")
         print(f"Probability of a successful tour: {successful_tours / total_trials}")
-        print("") 
+        print() 
 
     def initialize_board(self):
         self.board = [[-1] * self.n for _ in range(self.n)]
@@ -110,11 +110,10 @@ class KnightsTour: #this class is for the las vegas algorithm with k moves
 
         return False
 
-# Example usage:
-n = 8  # Chessboard size
+n = 8  #size 
 #measure the time of each algorithm
 
-knights_tour = KnightsTour(n)
+knights_tour = KnightsTour(n) 
 
 time_elapsed(knights_tour.las_vegas_algorithm, p=0.7, k=0)
 
@@ -123,7 +122,6 @@ time_elapsed(knights_tour.las_vegas_algorithm, p=0.7, k=2)
 
 time_elapsed(knights_tour.las_vegas_algorithm, p=0.7, k=3)
 
-# Measurements for p=0.8
 time_elapsed(knights_tour.las_vegas_algorithm, p=0.8, k=0)
 
 
@@ -131,7 +129,6 @@ time_elapsed(knights_tour.las_vegas_algorithm, p=0.8, k=2)
 
 time_elapsed(knights_tour.las_vegas_algorithm, p=0.8, k=3)
 
-# Measurements for p=0.85
 time_elapsed(knights_tour.las_vegas_algorithm, p=0.85, k=0)
 
 time_elapsed(knights_tour.las_vegas_algorithm, p=0.85, k=2)
