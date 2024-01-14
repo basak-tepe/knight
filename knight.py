@@ -1,71 +1,97 @@
-import math
 import random
+import time
+
+class KnightsTourLasVegas:
+    def __init__(self, n):
+        self.n = n
+        self.board = [[-1] * n for _ in range(n)]
+        self.visited = 0
+
+    def is_valid_move(self, x, y):
+        return 0 <= x < self.n and 0 <= y < self.n and self.board[x][y] == -1
+
+    def get_legal_moves(self, x, y):
+        moves = []
+        possible_moves = [(-2, -1), (-1, -2), (1, -2), (2, -1), (2, 1), (1, 2), (-1, 2), (-2, 1)]
+        for dx, dy in possible_moves:
+            new_x, new_y = x + dx, y + dy
+            if self.is_valid_move(new_x, new_y):
+                moves.append((new_x, new_y))
+        return moves
+
+    def las_vegas_algorithm(self, p, log_file):
+        total_squares = self.n * self.n
+        success_threshold = int(p * total_squares)
+        successful_tours = 0
+        total_trials = 100000
+
+        with open(log_file, "w") as file:
+            for trial in range(1, total_trials + 1):
+                self.initialize_board()
+                current_x, current_y = random.randint(0, self.n - 1), random.randint(0, self.n - 1)
+                self.board[current_x][current_y] = 0
+                self.visited = 1
+
+                file.write(f"Run {trial}: starting from ({current_x},{current_y})\n")
+
+                while self.visited < success_threshold:
+                    legal_moves = self.get_legal_moves(current_x, current_y)
+
+                    if not legal_moves:
+                        break
+
+                    next_move = random.choice(legal_moves)
+                    current_x, current_y = next_move
+
+                    self.visited += 1
+                    self.board[current_x][current_y] = self.visited
+
+                    # Write the tour steps to the log file inside the loop
+                    file.write(f"Stepping into ({current_x},{current_y})\n")
+
+                # Write the result of the run to the log file outside the loop
+                result = "Successful" if self.visited >= success_threshold else "Unsuccessful"
+                file.write(f"{result} - Tour length: {self.visited}\n")
+
+                # Write the board to the log file in a grid format
+                for row in self.board:
+                    file.write(" ".join(f"{square:2d}" for square in row) + "\n")
 
 
-def is_valid_move(x, y, visited):
-    return 0 <= x < 8 and 0 <= y < 8 and visited[x][y] == -1
+                if self.visited >= success_threshold:
+                    successful_tours += 1
+
+        print(f"--- p = {p} ---")
+        print(f"Number of successful tours: {successful_tours}")
+        print(f"Number of trials: {total_trials}")
+        print(f"Probability of a successful tour: {successful_tours / total_trials}")
+
+    def initialize_board(self):
+        self.board = [[-1] * self.n for _ in range(self.n)]
+        self.visited = 0
 
 
-def get_possible_moves(x, y, visited):
-    moves = [
-        (x + 1, y + 2), (x + 2, y + 1),
-        (x + 2, y - 1), (x + 1, y - 2),
-        (x - 1, y - 2), (x - 2, y - 1),
-        (x - 2, y + 1), (x - 1, y + 2)
-    ]
-    return [(a, b) for a, b in moves if is_valid_move(a, b, visited)]
 
+def time_elapsed(func, *args, **kwargs):
+    start_time = time.time()
+    func(*args, **kwargs)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"Time taken: {elapsed_time:.5f} seconds")
 
-def knight_tour(p):
-    board_size = 8
-    total_squares = board_size * board_size
-    target_squares = math.ceil(total_squares * p)
-    success_count = 0
+# Example usage:
+n = 8  # Chessboard size
+log_file1 = "results_0.7.txt"  # Specify the log file name
+log_file2 = "results_0.8.txt"  # Specify the log file name
+log_file3 = "results_0.85.txt"  # Specify the log file name
 
-    with open(f"results_{p}.txt", "w") as file:
-        for run in range(1, 100001):
-            # Initialize the chessboard and the starting position
-            chessboard = [[-1] * board_size for _ in range(board_size)]
-            current_x, current_y = random.randint(0, 7), random.randint(0, 7)
-            chessboard[current_y][current_x] = 0
-            visited_squares = 1
-            file.write(f"Run {run}: starting from ({current_x},{current_y})\n")
+knights_tour_lv = KnightsTourLasVegas(n)
 
-            while visited_squares < target_squares:
-                possible_moves = get_possible_moves(current_x, current_y, chessboard)
-                if not possible_moves:
-                    #################
-                    break  # Dead end
+# Run the Las Vegas algorithm with p=0.7 and log to file
+time_elapsed(knights_tour_lv.las_vegas_algorithm, p=0.7, log_file=log_file1)
 
-                next_x, next_y = random.choice(possible_moves)
-                chessboard[next_y][next_x] = visited_squares
-                current_x, current_y = next_x, next_y
-                visited_squares += 1
+# Run the Las Vegas algorithm with p=0.8 and log to file
+time_elapsed(knights_tour_lv.las_vegas_algorithm, p=0.8, log_file=log_file2)
 
-                # Write the tour steps to file inside the loop
-                file.write(f"Stepping into ({next_y},{next_x})\n")
-
-            if visited_squares >= target_squares:
-                success_count += 1
-
-            # Write the result of the run to file outside the loop
-            result = "Successful" if visited_squares >= target_squares else "Unsuccessful"
-            file.write(f"{result} - Tour length: {visited_squares}\n")
-
-            # Write the sequence of squares stepped on to file outside the loop
-            for row in chessboard:
-                file.write(" ".join(str(square) for square in row) + "\n")
-
-# Print the overall statistics
-    probability = success_count / 100000
-    print(f"LasVegas Algorithm With p = {p}")
-    print(f"Number of successful tours: {success_count}")
-    print(f"Number of trials: 100000")
-    print(f"Probability of a successful tour: {probability}")
-
-
-if __name__ == "__main__":
-    success_percentages = [0.7, 0.8, 0.85]
-
-    for p in success_percentages:
-        knight_tour(p)
+# Run the Las Vegas algorithm with p=0.85 and log to file
+time_elapsed(knights_tour_lv.las_vegas_algorithm, p=0.85, log_file=log_file3)
