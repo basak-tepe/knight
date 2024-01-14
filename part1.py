@@ -68,21 +68,15 @@ class KnightsTourLasVegas:
             self.board[current_x][current_y] = self.visited
 
 
-# Example usage:
+
 n = 8  # Chessboard size
 knights_tour_lv = KnightsTourLasVegas(n)
 
-# Measurements for p=0.7
+
 time_elapsed(knights_tour_lv.las_vegas_algorithm, p=0.7)
 
-# Measurements for p=0.8
-time_elapsed(knights_tour_lv.las_vegas_algorithm, p=0.8)
-def time_elapsed(func, *args, **kwargs):
-    start_time = time.time()
-    func(*args, **kwargs)
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print(f"Time taken: {elapsed_time:.5f} seconds")
 
-# Measurements for p=0.85
+time_elapsed(knights_tour_lv.las_vegas_algorithm, p=0.8)
+
+
 time_elapsed(knights_tour_lv.las_vegas_algorithm, p=0.85)
